@@ -33,17 +33,14 @@
 
 %endmacro
 
+%macro new_line_macro 0
 
+    push new_line_size
+    push new_line
 
+    call print_string
 
-
-
-
-
-
-
-
-
+%endmacro
 
 
 
@@ -97,7 +94,11 @@ op2_msg_size EQU $-op2_msg
 result_msg db 'O resultado eh: ',0dh,0ah
 result_msg_size EQU $-result_msg
 
-BATATA db 'BATATA',0dh,0ah
+new_line db 0dh, 0ah
+new_line_size EQU $-new_line
+
+minus db '-'
+minus_size EQU $-minus
 
 section .bss
 
@@ -159,15 +160,9 @@ thirty_two_bits_mode:
 
     ;prints menu message
     call print_menu
-
-    ;read user's input
-    ;mov eax,1
-    ;push eax
-    ;push menu_option
-    ;call read_string            ; VAI SER MELHOR SE COMPARAR COM INTEIRO. FAZER READ INT 32!!!
     
-    
-    GetLInt eax         ; APLICAR FUNCAO DESENVOLVIDA PRA PEGAR INTEIRO
+    call read_number_32
+    ; GetLInt eax         ; APLICAR FUNCAO DESENVOLVIDA PRA PEGAR INTEIRO
     mov dword [menu_option],eax
 
     ;calls appropriate function
@@ -257,8 +252,6 @@ read_number_32:
     sub ecx,2
     mov byte[ecx],'0'
 
-    ; mov esi,4
-    
     ;reads one byte at a time
     loop_read_int:
 
@@ -295,13 +288,8 @@ read_number_32:
 
     str_to_int_twos_complement:
 
-        ;valor = valor*10 + char-0x30
-        ;eax = char
-        ;ebx = valor
-
         lea eax,[EBP]
         sub eax,1
-        ; mov eax,[EBP-esi]
         sub byte [eax],0x30
 
         pop ebx
@@ -327,9 +315,6 @@ read_number_32:
 
             cmp byte[ecx],'1'
             jne no_negation
-            
-            ; test ebx, ebx           ; Test if the result is negative (ebx < 0)
-            ; jns no_negation         ; Jump if not negative
 
             not ebx                 ; Negate the result for negative numbers
             add ebx,1
@@ -346,8 +331,61 @@ read_number_32:
 
 print_number_32:
 
+    enter 11, 0
 
+    mov eax, [ebp+8]    ;loads input into eax
 
+    ; teste if negative
+    test eax, eax
+    jns setup_int_print_loop
+        not eax
+        add eax, 1
+
+        ; prints '-'
+        push minus_size
+        push minus
+        call print_string
+
+        setup_int_print_loop:
+
+            ; initialize iterator
+            mov esi, 1
+        
+        loop_convert_int:
+
+            ; gets the remainder from the division of the orinigal value by 10
+            ; eax = Numerator
+            mov edx,0           ; Clear the high 32 bits of the dividend (initialize remainder to 0)
+            mov ebx,10          ; Denominator
+            div ebx             ; EAX = EAX / EBX (quotient), EDX = EAX % EBX (remainder)
+            ; edx gets value%10
+
+            ; converts to ASCII
+            add edx,0x30
+
+            inc esi
+            ; salvar o dígito na memória
+            lea ebx,[ebp]
+            sub ebx,esi
+            mov [ebx], dl
+        
+            cmp eax, 0
+            jne loop_convert_int
+        
+        loop_print_int:
+
+            lea ebx, [ebp]
+            sub ebx, esi
+            lea eax, [ebx]
+            push 1
+            push eax
+            call print_string
+            dec esi
+            cmp esi, 0
+            jne loop_print_int
+
+    leave
+    ret 4
 
 
 print_menu:
@@ -392,106 +430,19 @@ print_menu:
     ret
 
 
-
-PRINT_STRING:
-    push ebp 
-    mov ebp, esp
-
-    push eax
-    push ebx
-    push ecx
-    push edx
-
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, [ebp + 12]
-    mov edx, [ebp + 8]
-    int 80h
-    
-    pop edx
-    pop ecx
-    pop ebx
-    pop eax
-    
-    pop ebp
-
-    ret 8
-PRINT_INT:
-    enter 11, 0
-
-    push eax
-    push ebx
-    push ecx
-    push edx
-
-
-    mov eax, [ebp+8]
-    test eax, eax
-    jns loop_set_up_print_int
-    not eax
-	add eax, 1
-    push negativo
-    push len_negativo
-    call PRINT_STRING
-
-    loop_set_up_print_int:
-        mov ebx, 10
-        mov ecx, -1
-        mov byte [ebp + ecx], 10
-
-    loop_print_int:
-        ; dividir o número por 10
-        mov edx, 0
-        div ebx
-        ; somar o resto da divisão com 48
-        add edx, 48
-        dec ecx
-        ; salvar o dígito na memória
-        mov [ebp + ecx], dl
-    
-        cmp eax, 0
-        jne loop_print_int
-    
-    loop_print_int2:
-        lea eax, [ebp+ecx]
-        push eax
-        push 1
-        call PRINT_STRING
-        inc ecx
-        cmp ecx, 0
-        jne loop_print_int2
-
-    pop edx
-    pop ecx
-    pop ebx
-    push eax
-    leave
-    ret 4
-
-
-
-
-
-
 SUM_32:
 
-    read_operands eax,ebx
+    read_operands eax,ebx       ; macro used for reading two inputs (eax and ebx in this case)
     add eax,ebx
     
-    print_result_msg    ; macro used for printing the "heres's the result" message
+    print_result_msg            ; macro used for printing the "heres's the result" message
 
-    ;call print_number_32
+    push eax                    ; pushing integer to be printed
+    call print_number_32
 
-    push eax
-    call PRINT_INT
-    ; PutLInt eax     ; USANDO FUNCAO DA io.mac SÓ PRA TESTAR!!!!!!!!!!!!!
+    new_line_macro              ; macro for printing newline
 
-    ;push eax
-    ;call print_number_32
-
-
-
-    jmp thirty_two_bits_mode
+    jmp thirty_two_bits_mode    ; returns to menu
 
 SUB_32:
 
@@ -527,16 +478,3 @@ MOD_32:
 
 
     jmp thirty_two_bits_mode
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,5 +1,3 @@
-%include "io.mac"
-
 ;read the two operands used in the selected operation, printing the required prompts
 %macro read_operands 2
     push op1_msg_size

@@ -5,22 +5,22 @@
 Inside the 32bit folder, execute the following commands:
 
 ### 1.1 Assembling 32b
-> nasm -f elf -o main_32.o main_32.asm
+> nasm -f elf -o CALCULADORA_32.o CALCULADORA_32.asm
 
 ### 1.2 Linking 32b
-> ld -m elf_i386 -o main_32 main_32.o
+> ld -m elf_i386 -o CALCULADORA_32 CALCULADORA_32.o
 
 ### 1.3 Executing 32b
-> ./main_32
+> ./CALCULADORA_32
 
 ## 2. 16-bit version
 Inside the 16bit folder, execute the following commands:
 
 ### 2.1 Assembling 16b
-> nasm -f elf -o main_16.o main_16.asm
+> nasm -f elf -o CALCULADORA_16.o CALCULADORA_16.asm
 
 ### 2.2 Linking 16b
-> ld -m elf_i386 -o main_16 main_16.o
+> ld -m elf_i386 -o CALCULADORA_16 CALCULADORA_16.o
 
 ### 2.3 Executing 16b
-> ./main_16
+> ./CALCULADORA_16

@@ -415,7 +415,6 @@ read_number_16:
     leave
     ret
 
-section .text
 
 
 print_number_16:

@@ -1,9 +1,14 @@
 # IA32_Calculator
+
 Autores:
-> Luca Delpino Barbabella - 180125559         
-> Lucca Beserra Huguet    - 160013259
+| Nome                    | Matrícula  |
+|-------------------------|------------|
+| Luca Delpino Barbabella | 180125559  |
+| Lucca Beserra Huguet    | 160013259  |
+
 
 32-bit and 16-bit versions of a simple calculator done in assembly IA32. Capable of detecting overflow in multiplication and exponentiation.
+
 
 ## 1. 32-bit version
 Inside the 32bit folder, execute the following commands:
